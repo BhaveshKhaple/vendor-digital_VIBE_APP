@@ -59,10 +59,10 @@ function KeypadButton({
       onPressOut={handlePressOut}
       style={[
         styles.keyButton,
-        { 
-          backgroundColor: isExpenseMode 
-            ? `${theme.expense}10` 
-            : theme.backgroundDefault 
+        {
+          backgroundColor: isExpenseMode
+            ? `${theme.expense}10`
+            : theme.backgroundDefault
         },
         animatedStyle,
       ]}
@@ -113,27 +113,27 @@ export function QuickAmountKeypad({ onSubmit, isExpenseMode = false }: QuickAmou
     [amount, onSubmit]
   );
 
-  const formattedAmount = parseFloat(amount || '0').toLocaleString('en-US', {
+  const formattedAmount = parseFloat(amount || '0').toLocaleString('en-IN', {
     minimumFractionDigits: amount.includes('.') ? amount.split('.')[1]?.length || 0 : 0,
     maximumFractionDigits: 2,
   });
 
-  const containerBg = isExpenseMode 
-    ? `${theme.expense}15` 
+  const containerBg = isExpenseMode
+    ? `${theme.expense}15`
     : theme.backgroundSecondary;
 
   return (
     <View style={[styles.container, { backgroundColor: containerBg }]}>
       <View style={styles.displayContainer}>
-        <ThemedText 
+        <ThemedText
           style={[
-            styles.currencySymbol, 
+            styles.currencySymbol,
             { color: isExpenseMode ? theme.expense : theme.textSecondary }
           ]}
         >
-          {isExpenseMode ? '-$' : '$'}
+          {isExpenseMode ? '-₹' : '₹'}
         </ThemedText>
-        <ThemedText 
+        <ThemedText
           style={[
             styles.amountDisplay,
             isExpenseMode && { color: theme.expense }
@@ -145,10 +145,10 @@ export function QuickAmountKeypad({ onSubmit, isExpenseMode = false }: QuickAmou
 
       <View style={styles.keypadGrid}>
         {KEYS.map((key) => (
-          <KeypadButton 
-            key={key} 
-            value={key} 
-            onPress={handleKeyPress} 
+          <KeypadButton
+            key={key}
+            value={key}
+            onPress={handleKeyPress}
             isExpenseMode={isExpenseMode}
           />
         ))}

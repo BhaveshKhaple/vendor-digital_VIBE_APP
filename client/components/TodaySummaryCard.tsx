@@ -5,6 +5,7 @@ import { Feather } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
 import { useTheme } from '@/hooks/useTheme';
 import { Spacing, BorderRadius } from '@/constants/theme';
+import { formatCurrencyWithSign } from '@/lib/currency';
 
 interface TodaySummaryCardProps {
   totalIn: number;
@@ -15,12 +16,6 @@ export function TodaySummaryCard({ totalIn, totalOut }: TodaySummaryCardProps) {
   const { theme } = useTheme();
   const net = totalIn - totalOut;
   const isPositive = net >= 0;
-
-  const formatCurrency = (value: number) =>
-    value.toLocaleString('en-US', {
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2,
-    });
 
   return (
     <View style={[styles.container, { backgroundColor: theme.backgroundDefault }]}>
@@ -47,8 +42,10 @@ export function TodaySummaryCard({ totalIn, totalOut }: TodaySummaryCardProps) {
           styles.netAmount,
           { color: isPositive ? theme.income : theme.expense },
         ]}
+        numberOfLines={1}
+        adjustsFontSizeToFit
       >
-        {isPositive ? '+' : '-'}${formatCurrency(Math.abs(net))}
+        {formatCurrencyWithSign(net)}
       </ThemedText>
 
       <View style={styles.breakdown}>
@@ -60,7 +57,7 @@ export function TodaySummaryCard({ totalIn, totalOut }: TodaySummaryCardProps) {
             </ThemedText>
           </View>
           <ThemedText style={[styles.breakdownAmount, { color: theme.income }]}>
-            +${formatCurrency(totalIn)}
+            {formatCurrencyWithSign(totalIn)}
           </ThemedText>
         </View>
 
@@ -74,7 +71,7 @@ export function TodaySummaryCard({ totalIn, totalOut }: TodaySummaryCardProps) {
             </ThemedText>
           </View>
           <ThemedText style={[styles.breakdownAmount, { color: theme.expense }]}>
-            -${formatCurrency(totalOut)}
+            {formatCurrencyWithSign(-totalOut)}
           </ThemedText>
         </View>
       </View>
@@ -106,9 +103,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   netAmount: {
-    fontSize: 42,
+    fontSize: 36,
     fontWeight: '700',
     marginBottom: Spacing.lg,
+    minWidth: 0,
+    flexShrink: 1,
   },
   breakdown: {
     flexDirection: 'row',

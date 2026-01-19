@@ -12,17 +12,18 @@ import { ThemedText } from '@/components/ThemedText';
 import { useTheme } from '@/hooks/useTheme';
 import { Spacing, BorderRadius } from '@/constants/theme';
 import { customerRepository, type Customer } from '@/lib/repositories';
+import { CURRENCY_SYMBOL } from '@/lib/currency';
 import type { RootStackParamList } from '@/navigation/RootStackNavigator';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const SHOP_NAME = 'My Shop';
 
-function CustomerCard({ 
-  customer, 
+function CustomerCard({
+  customer,
   onAddCredit,
   onSendReminder,
-}: { 
+}: {
   customer: Customer;
   onAddCredit: (customer: Customer) => void;
   onSendReminder: (customer: Customer) => void;
@@ -31,7 +32,7 @@ function CustomerCard({
   const hasDebt = customer.total_owed > 0;
 
   const formatAmount = (value: number) =>
-    Math.abs(value).toLocaleString('en-US', {
+    Math.abs(value).toLocaleString('en-IN', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     });
@@ -76,7 +77,7 @@ function CustomerCard({
           {hasDebt ? (
             <>
               <ThemedText style={[styles.balanceAmount, { color: theme.expense }]}>
-                ${formatAmount(customer.total_owed)}
+                {CURRENCY_SYMBOL}{formatAmount(customer.total_owed)}
               </ThemedText>
               <ThemedText style={[styles.balanceLabel, { color: theme.textSecondary }]}>
                 owes you
@@ -158,7 +159,7 @@ export default function LedgerScreen() {
   const tabBarHeight = useBottomTabBarHeight();
   const { theme } = useTheme();
   const navigation = useNavigation<NavigationProp>();
-  
+
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -200,11 +201,11 @@ export default function LedgerScreen() {
   }, [navigation]);
 
   const handleSendReminder = useCallback(async (customer: Customer) => {
-    const message = `Hi ${customer.name}, your balance at ${SHOP_NAME} is $${customer.total_owed.toFixed(2)}.`;
+    const message = `Hi ${customer.name}, your balance at ${SHOP_NAME} is ₹${customer.total_owed.toFixed(2)}.`;
     const phone = customer.phone?.replace(/[^0-9]/g, '');
-    
+
     const whatsappUrl = `whatsapp://send?phone=${phone}&text=${encodeURIComponent(message)}`;
-    
+
     try {
       const canOpen = await Linking.canOpenURL(whatsappUrl);
       if (canOpen) {
@@ -218,16 +219,16 @@ export default function LedgerScreen() {
     }
   }, []);
 
-  const formatCurrency = (value: number) =>
-    value.toLocaleString('en-US', {
+  const formatCurrencyValue = (value: number) =>
+    value.toLocaleString('en-IN', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     });
 
   const renderItem = useCallback(
     ({ item }: { item: Customer }) => (
-      <CustomerCard 
-        customer={item} 
+      <CustomerCard
+        customer={item}
         onAddCredit={handleAddCredit}
         onSendReminder={handleSendReminder}
       />
@@ -244,7 +245,7 @@ export default function LedgerScreen() {
           Total Outstanding (Udhaar)
         </ThemedText>
         <ThemedText style={[styles.summaryAmount, { color: totalOwed > 0 ? theme.expense : theme.income }]}>
-          ${formatCurrency(totalOwed)}
+          {CURRENCY_SYMBOL}{formatCurrencyValue(totalOwed)}
         </ThemedText>
       </View>
     );
@@ -282,7 +283,7 @@ export default function LedgerScreen() {
           onPress={handleAddCustomer}
           style={[
             styles.fab,
-            { 
+            {
               backgroundColor: theme.primary,
               bottom: tabBarHeight + Spacing.xl,
             },

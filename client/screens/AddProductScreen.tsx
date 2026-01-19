@@ -99,7 +99,7 @@ export default function AddProductScreen() {
       <ThemedText style={styles.label}>Default Price</ThemedText>
       <View style={styles.priceInputContainer}>
         <ThemedText style={[styles.currencySymbol, { color: theme.textSecondary }]}>
-          $
+          ₹
         </ThemedText>
         <TextInput
           style={[

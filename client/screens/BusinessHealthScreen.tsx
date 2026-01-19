@@ -12,6 +12,7 @@ import { useTheme } from '@/hooks/useTheme';
 import { Spacing, BorderRadius } from '@/constants/theme';
 import { transactionRepository } from '@/lib/repositories';
 import type { DailySummary } from '@/lib/repositories/types';
+import { CURRENCY_SYMBOL } from '@/lib/currency';
 
 export default function BusinessHealthScreen() {
   const insets = useSafeAreaInsets();
@@ -73,7 +74,7 @@ export default function BusinessHealthScreen() {
   }, []);
 
   const formatCurrency = (amount: number) => {
-    return (amount < 0 ? '-' : '') + '$' + Math.abs(amount).toLocaleString('en-US', {
+    return (amount < 0 ? '-' : '') + CURRENCY_SYMBOL + Math.abs(amount).toLocaleString('en-IN', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     });
@@ -104,10 +105,10 @@ export default function BusinessHealthScreen() {
             <ThemedText style={[styles.profitAmount, { color: todayProfit >= 0 ? theme.income : theme.expense }]}>
               {formatCurrency(todayProfit)}
             </ThemedText>
-            <Feather 
-              name={profitTrend === 'up' ? 'arrow-up-right' : 'arrow-down-right'} 
-              size={32} 
-              color={profitTrend === 'up' ? theme.income : theme.expense} 
+            <Feather
+              name={profitTrend === 'up' ? 'arrow-up-right' : 'arrow-down-right'}
+              size={32}
+              color={profitTrend === 'up' ? theme.income : theme.expense}
             />
           </View>
           <ThemedText style={[styles.subLabel, { color: theme.textSecondary }]}>

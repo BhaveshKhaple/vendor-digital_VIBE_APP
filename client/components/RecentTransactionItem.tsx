@@ -24,7 +24,7 @@ export function RecentTransactionItem({ transaction }: RecentTransactionItemProp
   const { theme } = useTheme();
   const isIncome = transaction.type === 'IN';
 
-  const formattedAmount = transaction.amount.toLocaleString('en-US', {
+  const formattedAmount = transaction.amount.toLocaleString('en-IN', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });
@@ -62,7 +62,7 @@ export function RecentTransactionItem({ transaction }: RecentTransactionItemProp
           { color: isIncome ? theme.income : theme.expense },
         ]}
       >
-        {isIncome ? '+' : '-'}${formattedAmount}
+        {isIncome ? '+' : '-'}₹{formattedAmount}
       </ThemedText>
     </View>
   );

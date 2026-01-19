@@ -41,7 +41,7 @@ function ProductGridItem({
   const { theme } = useTheme();
 
   const formatPrice = (value: number) =>
-    value.toLocaleString('en-US', {
+    value.toLocaleString('en-IN', {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     });
@@ -63,7 +63,7 @@ function ProductGridItem({
         {product.name}
       </ThemedText>
       <ThemedText style={[styles.productPrice, { color: theme.primary }]}>
-        ${formatPrice(product.default_price)}
+        ₹{formatPrice(product.default_price)}
       </ThemedText>
     </Pressable>
   );

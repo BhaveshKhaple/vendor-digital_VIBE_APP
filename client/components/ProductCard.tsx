@@ -59,13 +59,13 @@ export function ProductCard({ product, onSale, isExpenseMode = false }: ProductC
       withSpring(0.92, { damping: 15, stiffness: 400 }),
       withSpring(1, { damping: 15, stiffness: 400 })
     );
-    
+
     checkOpacity.value = withSequence(
       withTiming(1, { duration: 100 }),
       withTiming(1, { duration: 400 }),
       withTiming(0, { duration: 200 })
     );
-    
+
     checkScale.value = withSequence(
       withSpring(1.2, { damping: 10, stiffness: 300 }),
       withSpring(1, { damping: 15, stiffness: 400 }),
@@ -85,7 +85,7 @@ export function ProductCard({ product, onSale, isExpenseMode = false }: ProductC
     transform: [{ scale: checkScale.value }],
   }));
 
-  const formattedPrice = product.default_price.toLocaleString('en-US', {
+  const formattedPrice = product.default_price.toLocaleString('en-IN', {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });
@@ -95,22 +95,22 @@ export function ProductCard({ product, onSale, isExpenseMode = false }: ProductC
       onPress={handlePress}
       style={[
         styles.card,
-        { 
-          backgroundColor: isExpenseMode 
-            ? `${theme.expense}10` 
-            : theme.backgroundDefault 
+        {
+          backgroundColor: isExpenseMode
+            ? `${theme.expense}10`
+            : theme.backgroundDefault
         },
         animatedCardStyle,
       ]}
       testID={`product-card-${product.id}`}
     >
-      <View 
+      <View
         style={[
-          styles.iconContainer, 
-          { 
-            backgroundColor: isExpenseMode 
-              ? `${theme.expense}20` 
-              : theme.backgroundSecondary 
+          styles.iconContainer,
+          {
+            backgroundColor: isExpenseMode
+              ? `${theme.expense}20`
+              : theme.backgroundSecondary
           }
         ]}
       >
@@ -121,10 +121,10 @@ export function ProductCard({ product, onSale, isExpenseMode = false }: ProductC
         />
         <Animated.View style={[styles.checkOverlay, animatedCheckStyle]}>
           <View style={[styles.checkCircle, { backgroundColor: feedbackColor }]}>
-            <Feather 
-              name={isExpenseMode ? 'minus' : 'check'} 
-              size={28} 
-              color="#FFFFFF" 
+            <Feather
+              name={isExpenseMode ? 'minus' : 'check'}
+              size={28}
+              color="#FFFFFF"
             />
           </View>
         </Animated.View>
@@ -133,7 +133,7 @@ export function ProductCard({ product, onSale, isExpenseMode = false }: ProductC
         {product.name}
       </ThemedText>
       <ThemedText style={[styles.productPrice, { color: activeColor }]}>
-        {isExpenseMode ? '-' : ''}${formattedPrice}
+        {isExpenseMode ? '-' : ''}₹{formattedPrice}
       </ThemedText>
     </AnimatedPressable>
   );

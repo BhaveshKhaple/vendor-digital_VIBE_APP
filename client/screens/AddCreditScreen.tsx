@@ -115,7 +115,7 @@ export default function AddCreditScreen() {
 
         <View style={[styles.amountContainer, { backgroundColor: theme.backgroundDefault }]}>
           <ThemedText style={[styles.currencySymbol, { color: theme.textSecondary }]}>
-            $
+            ₹
           </ThemedText>
           <TextInput
             style={[styles.amountInput, { color: theme.expense }]}
