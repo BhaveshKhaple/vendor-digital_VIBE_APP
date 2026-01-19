@@ -13,11 +13,13 @@ import { RecentTransactionItem } from '@/components/RecentTransactionItem';
 import { TodaySummaryCard } from '@/components/TodaySummaryCard';
 import { EmptyProductGrid } from '@/components/EmptyProductGrid';
 import { ExpenseModeToggle } from '@/components/ExpenseModeToggle';
+import { VoiceInputButton } from '@/components/VoiceInputButton';
 import { useTheme } from '@/hooks/useTheme';
 import { useSalesData } from '@/hooks/useSalesData';
 import { useExpenseMode } from '@/context/ExpenseModeContext';
 import { Spacing } from '@/constants/theme';
 import type { Product } from '@/lib/repositories/types';
+import type { ParsedVoiceInput } from '@/lib/voice-parser';
 import type { RootStackParamList } from '@/navigation/RootStackNavigator';
 
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
@@ -70,6 +72,17 @@ export default function SalesScreen() {
     [recordManualTransaction]
   );
 
+  const handleVoiceConfirm = useCallback(
+    async (parsed: ParsedVoiceInput) => {
+      if (parsed.amount && parsed.amount > 0) {
+        // If a product was matched, use its price; otherwise use the parsed amount
+        const amount = parsed.matchedProduct?.default_price ?? parsed.amount;
+        await recordManualTransaction(amount, parsed.transactionType);
+      }
+    },
+    [recordManualTransaction]
+  );
+
   const handleAddProduct = useCallback(() => {
     navigation.navigate('AddProduct');
   }, [navigation]);
@@ -88,9 +101,9 @@ export default function SalesScreen() {
             isLastInRow && styles.productItemLast,
           ]}
         >
-          <ProductCard 
-            product={item} 
-            onSale={handleProductTap} 
+          <ProductCard
+            product={item}
+            onSale={handleProductTap}
             isExpenseMode={isExpenseMode}
           />
         </View>
@@ -110,7 +123,7 @@ export default function SalesScreen() {
         totalOut={todaySummary.total_out}
       />
 
-      <ThemedText 
+      <ThemedText
         style={[
           styles.sectionTitle,
           isExpenseMode && { color: theme.expense }
@@ -131,7 +144,21 @@ export default function SalesScreen() {
         <EmptyProductGrid onAddProduct={handleAddProduct} />
       )}
 
-      <ThemedText 
+      <ThemedText
+        style={[
+          styles.sectionTitle,
+          isExpenseMode && { color: theme.expense }
+        ]}
+      >
+        Voice Input
+      </ThemedText>
+      <VoiceInputButton
+        products={products}
+        isExpenseMode={isExpenseMode}
+        onConfirm={handleVoiceConfirm}
+      />
+
+      <ThemedText
         style={[
           styles.sectionTitle,
           isExpenseMode && { color: theme.expense }
@@ -139,8 +166,8 @@ export default function SalesScreen() {
       >
         Quick Amount
       </ThemedText>
-      <QuickAmountKeypad 
-        onSubmit={handleManualTransaction} 
+      <QuickAmountKeypad
+        onSubmit={handleManualTransaction}
         isExpenseMode={isExpenseMode}
       />
 
@@ -156,6 +183,7 @@ export default function SalesScreen() {
     renderProductItem,
     handleAddProduct,
     handleManualTransaction,
+    handleVoiceConfirm,
     recentTransactions.length,
     isExpenseMode,
     theme.expense,
@@ -168,8 +196,8 @@ export default function SalesScreen() {
     []
   );
 
-  const backgroundColor = isExpenseMode 
-    ? `${theme.expense}08` 
+  const backgroundColor = isExpenseMode
+    ? `${theme.expense}08`
     : theme.backgroundRoot;
 
   return (
