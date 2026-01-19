@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   productRepository,
   transactionRepository,
@@ -17,6 +18,7 @@ interface SalesData {
 
 interface SalesActions {
   recordSale: (product: Product) => Promise<void>;
+  recordExpense: (product: Product) => Promise<void>;
   recordManualTransaction: (amount: number, type: 'IN' | 'OUT') => Promise<void>;
   refreshData: () => Promise<void>;
 }
@@ -46,9 +48,11 @@ export function useSalesData(): SalesData & SalesActions {
     }
   }, []);
 
-  useEffect(() => {
-    loadData();
-  }, [loadData]);
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [loadData])
+  );
 
   const recordSale = useCallback(async (product: Product) => {
     try {
@@ -61,6 +65,21 @@ export function useSalesData(): SalesData & SalesActions {
       await loadData();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to record sale');
+    }
+  }, [loadData]);
+
+  const recordExpense = useCallback(async (product: Product) => {
+    try {
+      const input: CreateTransactionInput = {
+        product_id: product.id,
+        amount: product.default_price,
+        type: 'OUT',
+        note: `Expense: ${product.name}`,
+      };
+      await transactionRepository.create(input);
+      await loadData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to record expense');
     }
   }, [loadData]);
 
@@ -93,6 +112,7 @@ export function useSalesData(): SalesData & SalesActions {
     isLoading,
     error,
     recordSale,
+    recordExpense,
     recordManualTransaction,
     refreshData,
   };

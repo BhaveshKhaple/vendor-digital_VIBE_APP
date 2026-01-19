@@ -19,6 +19,7 @@ import type { Product } from '@/lib/repositories/types';
 interface ProductCardProps {
   product: Product;
   onSale: (product: Product) => void;
+  isExpenseMode?: boolean;
 }
 
 const PRODUCT_ICONS: Record<string, keyof typeof Feather.glyphMap> = {
@@ -39,11 +40,14 @@ function getIconName(iconUri: string | null): keyof typeof Feather.glyphMap {
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
-export function ProductCard({ product, onSale }: ProductCardProps) {
+export function ProductCard({ product, onSale, isExpenseMode = false }: ProductCardProps) {
   const { theme } = useTheme();
   const scale = useSharedValue(1);
   const checkOpacity = useSharedValue(0);
   const checkScale = useSharedValue(0.5);
+
+  const activeColor = isExpenseMode ? theme.expense : theme.primary;
+  const feedbackColor = isExpenseMode ? theme.expense : theme.income;
 
   const triggerHaptic = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -91,28 +95,45 @@ export function ProductCard({ product, onSale }: ProductCardProps) {
       onPress={handlePress}
       style={[
         styles.card,
-        { backgroundColor: theme.backgroundDefault },
+        { 
+          backgroundColor: isExpenseMode 
+            ? `${theme.expense}10` 
+            : theme.backgroundDefault 
+        },
         animatedCardStyle,
       ]}
       testID={`product-card-${product.id}`}
     >
-      <View style={[styles.iconContainer, { backgroundColor: theme.backgroundSecondary }]}>
+      <View 
+        style={[
+          styles.iconContainer, 
+          { 
+            backgroundColor: isExpenseMode 
+              ? `${theme.expense}20` 
+              : theme.backgroundSecondary 
+          }
+        ]}
+      >
         <Feather
           name={getIconName(product.icon_uri)}
           size={36}
-          color={theme.primary}
+          color={activeColor}
         />
         <Animated.View style={[styles.checkOverlay, animatedCheckStyle]}>
-          <View style={[styles.checkCircle, { backgroundColor: theme.income }]}>
-            <Feather name="check" size={28} color="#FFFFFF" />
+          <View style={[styles.checkCircle, { backgroundColor: feedbackColor }]}>
+            <Feather 
+              name={isExpenseMode ? 'minus' : 'check'} 
+              size={28} 
+              color="#FFFFFF" 
+            />
           </View>
         </Animated.View>
       </View>
       <ThemedText style={styles.productName} numberOfLines={1}>
         {product.name}
       </ThemedText>
-      <ThemedText style={[styles.productPrice, { color: theme.primary }]}>
-        ${formattedPrice}
+      <ThemedText style={[styles.productPrice, { color: activeColor }]}>
+        {isExpenseMode ? '-' : ''}${formattedPrice}
       </ThemedText>
     </AnimatedPressable>
   );

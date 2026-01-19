@@ -14,6 +14,7 @@ import { Spacing, BorderRadius } from '@/constants/theme';
 
 interface QuickAmountKeypadProps {
   onSubmit: (amount: number, type: 'IN' | 'OUT') => void;
+  isExpenseMode?: boolean;
 }
 
 const KEYS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'del'];
@@ -23,9 +24,11 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 function KeypadButton({
   value,
   onPress,
+  isExpenseMode = false,
 }: {
   value: string;
   onPress: (value: string) => void;
+  isExpenseMode?: boolean;
 }) {
   const { theme } = useTheme();
   const scale = useSharedValue(1);
@@ -56,7 +59,11 @@ function KeypadButton({
       onPressOut={handlePressOut}
       style={[
         styles.keyButton,
-        { backgroundColor: theme.backgroundDefault },
+        { 
+          backgroundColor: isExpenseMode 
+            ? `${theme.expense}10` 
+            : theme.backgroundDefault 
+        },
         animatedStyle,
       ]}
       testID={`keypad-${value}`}
@@ -70,7 +77,7 @@ function KeypadButton({
   );
 }
 
-export function QuickAmountKeypad({ onSubmit }: QuickAmountKeypadProps) {
+export function QuickAmountKeypad({ onSubmit, isExpenseMode = false }: QuickAmountKeypadProps) {
   const { theme } = useTheme();
   const [amount, setAmount] = useState('0');
 
@@ -111,38 +118,72 @@ export function QuickAmountKeypad({ onSubmit }: QuickAmountKeypadProps) {
     maximumFractionDigits: 2,
   });
 
+  const containerBg = isExpenseMode 
+    ? `${theme.expense}15` 
+    : theme.backgroundSecondary;
+
   return (
-    <View style={[styles.container, { backgroundColor: theme.backgroundSecondary }]}>
+    <View style={[styles.container, { backgroundColor: containerBg }]}>
       <View style={styles.displayContainer}>
-        <ThemedText style={[styles.currencySymbol, { color: theme.textSecondary }]}>
-          $
+        <ThemedText 
+          style={[
+            styles.currencySymbol, 
+            { color: isExpenseMode ? theme.expense : theme.textSecondary }
+          ]}
+        >
+          {isExpenseMode ? '-$' : '$'}
         </ThemedText>
-        <ThemedText style={styles.amountDisplay}>{formattedAmount}</ThemedText>
+        <ThemedText 
+          style={[
+            styles.amountDisplay,
+            isExpenseMode && { color: theme.expense }
+          ]}
+        >
+          {formattedAmount}
+        </ThemedText>
       </View>
 
       <View style={styles.keypadGrid}>
         {KEYS.map((key) => (
-          <KeypadButton key={key} value={key} onPress={handleKeyPress} />
+          <KeypadButton 
+            key={key} 
+            value={key} 
+            onPress={handleKeyPress} 
+            isExpenseMode={isExpenseMode}
+          />
         ))}
       </View>
 
       <View style={styles.actionButtons}>
-        <Pressable
-          onPress={() => handleSubmit('OUT')}
-          style={[styles.actionButton, { backgroundColor: theme.expense }]}
-          testID="keypad-out"
-        >
-          <Feather name="minus" size={20} color="#FFFFFF" />
-          <ThemedText style={styles.actionButtonText}>Expense</ThemedText>
-        </Pressable>
-        <Pressable
-          onPress={() => handleSubmit('IN')}
-          style={[styles.actionButton, { backgroundColor: theme.income }]}
-          testID="keypad-in"
-        >
-          <Feather name="plus" size={20} color="#FFFFFF" />
-          <ThemedText style={styles.actionButtonText}>Income</ThemedText>
-        </Pressable>
+        {isExpenseMode ? (
+          <Pressable
+            onPress={() => handleSubmit('OUT')}
+            style={[styles.actionButton, styles.fullWidthButton, { backgroundColor: theme.expense }]}
+            testID="keypad-out"
+          >
+            <Feather name="minus" size={20} color="#FFFFFF" />
+            <ThemedText style={styles.actionButtonText}>Record Expense</ThemedText>
+          </Pressable>
+        ) : (
+          <>
+            <Pressable
+              onPress={() => handleSubmit('OUT')}
+              style={[styles.actionButton, { backgroundColor: theme.expense }]}
+              testID="keypad-out"
+            >
+              <Feather name="minus" size={20} color="#FFFFFF" />
+              <ThemedText style={styles.actionButtonText}>Expense</ThemedText>
+            </Pressable>
+            <Pressable
+              onPress={() => handleSubmit('IN')}
+              style={[styles.actionButton, { backgroundColor: theme.income }]}
+              testID="keypad-in"
+            >
+              <Feather name="plus" size={20} color="#FFFFFF" />
+              <ThemedText style={styles.actionButtonText}>Income</ThemedText>
+            </Pressable>
+          </>
+        )}
       </View>
     </View>
   );
@@ -200,6 +241,9 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.lg,
     borderRadius: BorderRadius.md,
     gap: Spacing.sm,
+  },
+  fullWidthButton: {
+    flex: 1,
   },
   actionButtonText: {
     color: '#FFFFFF',

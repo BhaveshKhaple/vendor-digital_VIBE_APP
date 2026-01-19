@@ -12,8 +12,10 @@ import { QuickAmountKeypad } from '@/components/QuickAmountKeypad';
 import { RecentTransactionItem } from '@/components/RecentTransactionItem';
 import { TodaySummaryCard } from '@/components/TodaySummaryCard';
 import { EmptyProductGrid } from '@/components/EmptyProductGrid';
+import { ExpenseModeToggle } from '@/components/ExpenseModeToggle';
 import { useTheme } from '@/hooks/useTheme';
 import { useSalesData } from '@/hooks/useSalesData';
+import { useExpenseMode } from '@/context/ExpenseModeContext';
 import { Spacing } from '@/constants/theme';
 import type { Product } from '@/lib/repositories/types';
 import type { RootStackParamList } from '@/navigation/RootStackNavigator';
@@ -26,7 +28,12 @@ export default function SalesScreen() {
   const tabBarHeight = useBottomTabBarHeight();
   const { theme } = useTheme();
   const navigation = useNavigation<NavigationProp>();
+  const { isExpenseMode } = useExpenseMode();
   const [refreshing, setRefreshing] = useState(false);
+
+  const activeTheme = isExpenseMode
+    ? { ...theme, primary: theme.expense, backgroundSecondary: `${theme.expense}15` }
+    : theme;
 
   const {
     products,
@@ -34,6 +41,7 @@ export default function SalesScreen() {
     todaySummary,
     isLoading,
     recordSale,
+    recordExpense,
     recordManualTransaction,
     refreshData,
   } = useSalesData();
@@ -44,11 +52,15 @@ export default function SalesScreen() {
     setRefreshing(false);
   }, [refreshData]);
 
-  const handleSale = useCallback(
+  const handleProductTap = useCallback(
     async (product: Product) => {
-      await recordSale(product);
+      if (isExpenseMode) {
+        await recordExpense(product);
+      } else {
+        await recordSale(product);
+      }
     },
-    [recordSale]
+    [isExpenseMode, recordSale, recordExpense]
   );
 
   const handleManualTransaction = useCallback(
@@ -64,7 +76,6 @@ export default function SalesScreen() {
 
   const renderProductItem = useCallback(
     ({ item, index }: { item: Product; index: number }) => {
-      const row = Math.floor(index / 3);
       const col = index % 3;
       const isLastInRow = col === 2;
       const isFirstInRow = col === 0;
@@ -77,21 +88,36 @@ export default function SalesScreen() {
             isLastInRow && styles.productItemLast,
           ]}
         >
-          <ProductCard product={item} onSale={handleSale} />
+          <ProductCard 
+            product={item} 
+            onSale={handleProductTap} 
+            isExpenseMode={isExpenseMode}
+          />
         </View>
       );
     },
-    [handleSale]
+    [handleProductTap, isExpenseMode]
   );
 
   const renderHeader = useCallback(() => (
     <>
+      <View style={styles.modeToggleContainer}>
+        <ExpenseModeToggle />
+      </View>
+
       <TodaySummaryCard
         totalIn={todaySummary.total_in}
         totalOut={todaySummary.total_out}
       />
 
-      <ThemedText style={styles.sectionTitle}>Quick Sale</ThemedText>
+      <ThemedText 
+        style={[
+          styles.sectionTitle,
+          isExpenseMode && { color: theme.expense }
+        ]}
+      >
+        {isExpenseMode ? 'Quick Expense' : 'Quick Sale'}
+      </ThemedText>
 
       {products.length > 0 ? (
         <View style={styles.productGrid}>
@@ -105,8 +131,18 @@ export default function SalesScreen() {
         <EmptyProductGrid onAddProduct={handleAddProduct} />
       )}
 
-      <ThemedText style={styles.sectionTitle}>Quick Amount</ThemedText>
-      <QuickAmountKeypad onSubmit={handleManualTransaction} />
+      <ThemedText 
+        style={[
+          styles.sectionTitle,
+          isExpenseMode && { color: theme.expense }
+        ]}
+      >
+        Quick Amount
+      </ThemedText>
+      <QuickAmountKeypad 
+        onSubmit={handleManualTransaction} 
+        isExpenseMode={isExpenseMode}
+      />
 
       {recentTransactions.length > 0 ? (
         <ThemedText style={[styles.sectionTitle, { marginTop: Spacing.xl }]}>
@@ -121,6 +157,8 @@ export default function SalesScreen() {
     handleAddProduct,
     handleManualTransaction,
     recentTransactions.length,
+    isExpenseMode,
+    theme.expense,
   ]);
 
   const renderTransactionItem = useCallback(
@@ -130,9 +168,13 @@ export default function SalesScreen() {
     []
   );
 
+  const backgroundColor = isExpenseMode 
+    ? `${theme.expense}08` 
+    : theme.backgroundRoot;
+
   return (
     <FlatList
-      style={[styles.container, { backgroundColor: theme.backgroundRoot }]}
+      style={[styles.container, { backgroundColor }]}
       contentContainerStyle={{
         paddingTop: headerHeight + Spacing.xl,
         paddingBottom: tabBarHeight + Spacing.xl,
@@ -147,7 +189,7 @@ export default function SalesScreen() {
         <RefreshControl
           refreshing={refreshing}
           onRefresh={handleRefresh}
-          tintColor={theme.primary}
+          tintColor={isExpenseMode ? theme.expense : theme.primary}
         />
       }
       showsVerticalScrollIndicator={false}
@@ -159,6 +201,10 @@ export default function SalesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+  },
+  modeToggleContainer: {
+    alignItems: 'center',
+    marginBottom: Spacing.lg,
   },
   sectionTitle: {
     fontSize: 17,

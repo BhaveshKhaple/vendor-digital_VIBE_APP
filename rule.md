@@ -72,7 +72,7 @@ Primary goal: Speed and data safety without internet connectivity.
 ---
 
 ## Phase 2: The "Big Icon" Sales Engine
-**Status: CURRENT - COMPLETED**
+**Status: COMPLETED**
 
 ### Objectives
 - [x] Create Sales Dashboard with 3x3 product grid
@@ -104,36 +104,76 @@ Primary goal: Speed and data safety without internet connectivity.
 | AddProductScreen | `client/screens/AddProductScreen.tsx` | Modal form for adding products |
 | EditProductScreen | `client/screens/EditProductScreen.tsx` | Modal form for editing/deleting products |
 
-#### Navigation
-| Navigator | File | Description |
-|-----------|------|-------------|
-| SalesStackNavigator | `client/navigation/SalesStackNavigator.tsx` | Sales tab stack |
-| LedgerStackNavigator | `client/navigation/LedgerStackNavigator.tsx` | Ledger tab stack |
-| InventoryStackNavigator | `client/navigation/InventoryStackNavigator.tsx` | Inventory tab stack |
+---
 
-#### Hooks
-| Hook | File | Description |
-|------|------|-------------|
-| useSalesData | `client/hooks/useSalesData.ts` | Data fetching for sales dashboard |
+## Phase 3: The Expense & Credit (Udhaar) Module
+**Status: CURRENT - COMPLETED**
+
+### Objectives
+- [x] Create Expense Mode toggle with red UI theme
+- [x] Product taps record OUT transactions when Expense Mode is active
+- [x] Build Credit Ledger (Udhaar) screen with customer list
+- [x] Add WhatsApp integration with pre-filled payment reminder
+- [x] Create Add Credit modal for adding customer debts
+- [x] All credit transactions update the Ledger (customers) table
+
+### New Components Created
+
+#### Expense Mode
+| Component | File | Description |
+|-----------|------|-------------|
+| ExpenseModeContext | `client/context/ExpenseModeContext.tsx` | React context for expense mode state |
+| ExpenseModeToggle | `client/components/ExpenseModeToggle.tsx` | Toggle switch with animated UI |
+
+#### Credit Ledger (Udhaar)
+| Screen | File | Description |
+|--------|------|-------------|
+| AddCreditScreen | `client/screens/AddCreditScreen.tsx` | Modal to add customer + credit amount |
 
 ### Features Implemented
-- **One-Tap Sales**: Tapping a product card instantly records a sale
-- **Haptic Feedback**: Medium vibration on product tap, light on keypad, success notification on submit
-- **Checkmark Animation**: Animated checkmark overlay with scale/fade effect
-- **Quick Amount Keypad**: Decimal-safe input with IN/OUT transaction types
-- **Real-time Updates**: Transactions and summary update immediately after recording
 
-## Phase 3: Business Logic & Integration (PENDING)
-- [ ] Customer management (add/edit/delete customers)
-- [ ] Customer transaction recording with balance updates
-- [ ] Transaction history per customer
-- [ ] Data export functionality
+#### Expense Mode Toggle
+- Toggle button at top of Sales screen
+- When active:
+  - UI background turns slightly red-tinted
+  - Product cards have red accent color
+  - Tapping products records OUT transactions instead of IN
+  - Keypad shows single "Record Expense" button
+  - Animated toggle with spring effects
+
+#### Credit Ledger (Udhaar) Screen
+- Customer list showing:
+  - Customer name and phone
+  - Outstanding balance (red for debt, green for settled)
+  - "Add Credit" button per customer
+  - WhatsApp "Remind" button (green) for customers with debt and phone number
+- FAB (floating action button) to add new customers
+- Pull-to-refresh functionality
+- Empty state with "Add Customer" button
+
+#### WhatsApp Integration
+- Opens WhatsApp with pre-filled message:
+  `"Hi [Name], your balance at [Shop Name] is $[Amount]."`
+- Falls back to web WhatsApp if app not installed
+- Only shows for customers with phone numbers and outstanding balance
+
+### Updated Files
+- `client/screens/SalesScreen.tsx` - Added expense mode toggle and themed UI
+- `client/screens/LedgerScreen.tsx` - Complete redesign with WhatsApp + credit actions
+- `client/components/ProductCard.tsx` - Added isExpenseMode prop for red styling
+- `client/components/QuickAmountKeypad.tsx` - Added isExpenseMode prop
+- `client/hooks/useSalesData.ts` - Added recordExpense function
+- `client/navigation/RootStackNavigator.tsx` - Added AddCredit screen
+- `client/App.tsx` - Added ExpenseModeProvider
+
+---
 
 ## Phase 4: Polish & Testing (PENDING)
 - [ ] Error handling and edge cases
 - [ ] Performance optimization
 - [ ] Accessibility improvements
 - [ ] User testing and feedback
+- [ ] Data export functionality
 
 ---
 
@@ -142,3 +182,5 @@ Primary goal: Speed and data safety without internet connectivity.
 - No cloud sync logic implemented
 - 100% local persistence with SQLite
 - Expo Go compatible libraries only
+- Simple, minimal UI - no complex dropdowns
+- Use @expo/vector-icons (Feather) instead of emojis
