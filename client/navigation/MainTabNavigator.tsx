@@ -12,6 +12,7 @@ export type MainTabParamList = {
   SalesTab: undefined;
   LedgerTab: undefined;
   InventoryTab: undefined;
+  HealthTab: undefined;
 };
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -72,6 +73,16 @@ export default function MainTabNavigator() {
           title: "Products",
           tabBarIcon: ({ color, size }) => (
             <Feather name="package" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="HealthTab"
+        component={require('@/screens/BusinessHealthScreen').default}
+        options={{
+          title: "Health",
+          tabBarIcon: ({ color, size }) => (
+            <Feather name="trending-up" size={size} color={color} />
           ),
         }}
       />
