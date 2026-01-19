@@ -30,3 +30,13 @@
 # Technical Debt
 - Sync service is currently simulated; real integration with Firebase/Supabase pending keys.
 - Analytics over longer periods (monthly/yearly) could be added.
+
+## Phase 5: Voice Logic (Current)
+- **STT Engine:** Sarvam / Native
+- **Supported Phrases:** [Amount] + [Product Name]
+- **State Logic:** Record -> Parse -> Confirm -> Transaction Write.
+- **Next Phase:** Optimization & Beta Testing.
+
+## Context Lock
+- **Active Constraints:** Offline-first remains priority. Voice requires data (unless using Native).
+- **Recent Refactor:** Voice input now triggers the same 'Transaction' logic as the Icon grid.
