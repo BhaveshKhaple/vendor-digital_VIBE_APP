@@ -34,20 +34,23 @@ export default function AddCreditScreen() {
 
     setIsLoading(true);
     try {
-      let customerId = existingCustomer?.id;
+      let customerId: number;
 
-      if (!customerId) {
-        customerId = await customerRepository.create({
+      if (!existingCustomer) {
+        const newCustomer = await customerRepository.create({
           name: name.trim(),
           phone: phone.trim() || undefined,
         });
+        customerId = newCustomer.id;
+      } else {
+        customerId = existingCustomer.id;
       }
 
       await transactionRepository.create({
         customer_id: customerId,
         amount: numAmount,
         type: 'OUT',
-        note: `Credit to ${name.trim()}`,
+        note: `Credit to \${name.trim()}`,
       });
 
       await customerRepository.updateBalance(customerId, numAmount);
